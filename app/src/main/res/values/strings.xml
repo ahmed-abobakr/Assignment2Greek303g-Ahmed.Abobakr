@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Assignment2-Ahmed.Abobakr-Greek303g</string>
+
+    <string name="error_getData">Error Getting data from server, please press refresh button</string>
+    <string name="refresh">Refresh</string>
+</resources>
