@@ -2,45 +2,47 @@ package abobakr.ahmed.greek303g.com.assignment2greek303g;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import java.util.List;
 
+import abobakr.ahmed.greek303g.com.assignment2greek303g.adpater.PostsAdapter;
 import abobakr.ahmed.greek303g.com.assignment2greek303g.async.GetPostInfo;
 import abobakr.ahmed.greek303g.com.assignment2greek303g.models.PostInfo;
+import abobakr.ahmed.greek303g.com.assignment2greek303g.parser.PostsParser;
 import de.greenrobot.event.EventBus;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView imgProfile, imgPost;
-    TextView txtName, txtTime, txtPost, txtComment, txtLikes, txtShares;
-    Button btnLike, btnComment, btnShare;
+
+    private RecyclerView postsRecyclerView;
+    private PostsAdapter postsAdapter;
+    private List<PostInfo> postsList;
+    private final String API_URL = "https://dl.dropboxusercontent.com/s/7rvknz9e6tfprun/facebookFeed.json";
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
+        postsRecyclerView = (RecyclerView) findViewById(R.id.posts_list);
 
-        imgProfile = (ImageView) findViewById(R.id.img_profile);
-        imgPost = (ImageView) findViewById(R.id.img_post);
-        txtName = (TextView) findViewById(R.id.txt_name);
-        txtTime = (TextView) findViewById(R.id.txt_time);
-        txtPost = (TextView) findViewById(R.id.txt_post);
-        txtComment = (TextView) findViewById(R.id.txt_comments);
-        txtLikes = (TextView) findViewById(R.id.txt_likes);
-        txtShares = (TextView) findViewById(R.id.txt_shares);
-        btnLike = (Button) findViewById(R.id.btn_like);
-        btnComment = (Button) findViewById(R.id.btn_comment);
-        btnShare = (Button) findViewById(R.id.btn_share);
 
-        new GetPostInfo(this).execute();
+        RecyclerView.LayoutManager mLayout = new LinearLayoutManager(this);
+        postsRecyclerView.setLayoutManager(mLayout);
+        postsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+
+
+
+
+        new GetPostInfo(this, new PostsParser(), API_URL);
     }
 
     @Override
@@ -68,23 +70,18 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.refresh:
-                new GetPostInfo(this).execute();
+                new GetPostInfo(this, new PostsParser(), API_URL);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void onEvent(PostInfo postInfo){
-        Picasso.with(this).load(postInfo.userPic).into(imgProfile);
-        txtName.setText(postInfo.userName);
-        txtPost.setText(postInfo.postText);
-        txtTime.setText(postInfo.postTime);
-        txtLikes.setText(postInfo.likes);
-        txtShares.setText(postInfo.shares);
-        txtComment.setText(postInfo.comments);
-
-        Picasso.with(this).load(postInfo.postImage).into(imgPost);
+    public void onEvent(List<PostInfo> postInfto){
+        postsList = postInfto;
+        postsAdapter = new PostsAdapter(postsList, this);
+        postsRecyclerView.setAdapter(postsAdapter);
     }
+
 
 
 }
